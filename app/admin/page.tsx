@@ -193,7 +193,7 @@ export default function AdminPage() {
   const card = 'rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5';
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-gray-100 text-slate-800">
+    <div className="   admin-scope min-h-screen overflow-x-hidden bg-gray-100 text-slate-800">
       {/* Header ringkas */}
       <header className="sticky top-0 z-20 bg-green-800 text-white shadow-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
