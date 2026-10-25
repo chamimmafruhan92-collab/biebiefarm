@@ -1,5 +1,9 @@
+@layer theme, legacy, base, components, utilities;
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
 
+@layer legacy {
 :root{--navy:#142e45;--blue:#285b7a;--blue2:#477e9b;--sky:#e9f2f6;--pale:#f5f8f9;--ink:#182d3b;--muted:#687985;--line:#dce5e9;--white:#fff;--green:#8fae8b}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:90px}
@@ -121,3 +125,44 @@ h2{font-size:clamp(30px,3.5vw,46px);line-height:1.2;letter-spacing:-1.6px;font-w
 .footer-bottom{grid-column:1/-1;border-top:1px solid var(--line);padding-top:18px;margin-top:20px;display:flex;justify-content:space-between;gap:20px;color:#8a989f;font-size:9px}
 @media(max-width:900px){.site-header{padding:0 5%;height:75px}.desktop-nav{gap:16px}.header-cta{font-size:11px}.hero{padding:50px 5% 30px;gap:4%}.hero-visual{height:420px}.section-wrap{padding:78px 7%}.download-band,.collab{padding-left:7%;padding-right:7%;grid-template-columns:50px 1fr}.download-action,.collab-contact{grid-column:2}.download-action{margin-top:4px}.collab-contact{margin-top:4px}.footer{padding-left:7%;padding-right:7%}}
 @media(max-width:640px){body{font-size:14px}.site-header{height:70px;padding:0 5%}.brand-mark{width:37px;height:37px}.brand-name{font-size:18px}.desktop-nav,.header-cta{display:none}.mobile-menu{display:block;color:var(--navy)}.mobile-nav{display:flex;justify-content:center;gap:18px;padding:12px 5%;border-bottom:1px solid var(--line);flex-wrap:wrap}.mobile-nav a{font-size:11px;color:#536672}.hero{grid-template-columns:1fr;padding:39px 5% 24px;gap:20px}.hero-copy{padding:0}.eyebrow{font-size:8px;letter-spacing:1.3px}h1{font-size:42px;letter-spacing:-1.9px;margin:23px 0 17px}.hero-description{font-size:13px}.hero-actions{gap:9px;margin-top:23px}.button{padding:12px 14px;min-height:44px;font-size:11px}.hero-visual{height:330px}.floating-note{top:16px;right:14px;padding:10px 12px}.hero-index{font-size:8px;letter-spacing:1px;gap:9px}.index-rule{width:24px}.section-wrap{padding:66px 6%}.intro-content{grid-template-columns:1fr;gap:24px;margin-top:22px}.intro-content h2{font-size:35px}.intro-text p{font-size:13px}.values-row{grid-template-columns:1fr;gap:22px;margin-top:35px}.values-row>div{min-height:42px}.section-heading{display:block;margin-bottom:28px}.section-heading h2{font-size:34px}.section-heading>p{margin-top:18px;font-size:12px}.guide-grid{grid-template-columns:1fr;gap:12px}.guide-card{min-height:0}.guide-top{padding:17px 18px 8px}.guide-body{padding:10px 18px 20px}.guide-body h3{font-size:17px}.download-band{padding:43px 6%;grid-template-columns:43px 1fr;gap:16px}.download-icon{width:43px;height:43px}.download-copy h2{font-size:29px}.download-copy p{font-size:11px}.download-action{grid-column:1/-1;margin-top:8px}.field-grid{grid-template-columns:1fr;gap:32px}.field-art{height:230px}.field-feature h3{font-size:19px}.collab{padding:45px 6%;grid-template-columns:43px 1fr;gap:16px}.collab-symbol{width:43px;height:43px}.collab-copy h2{font-size:28px}.collab-copy p{font-size:11px}.collab-contact{grid-column:1/-1;margin-top:8px}.footer{padding:43px 6% 18px;grid-template-columns:1fr 1fr;gap:30px 20px}.footer-main{grid-column:1/-1}.footer-links:last-of-type{grid-column:1/-1}.footer-bottom{flex-direction:column;gap:7px;margin-top:5px}.placeholder-note{line-height:1.7}}
+}
+
+@layer base {
+  .admin-scope,
+  .admin-scope *,
+  .admin-scope *::before,
+  .admin-scope *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid;
+  }
+  .admin-scope h1,
+  .admin-scope h2,
+  .admin-scope h3 {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: normal;
+    line-height: inherit;
+    color: inherit;
+  }
+  .admin-scope ul {
+    list-style: none;
+  }
+  .admin-scope a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+  .admin-scope button,
+  .admin-scope input {
+    font: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    background-color: transparent;
+    border-radius: 0;
+  }
+  .admin-scope svg {
+    display: block;
+  }
+}
