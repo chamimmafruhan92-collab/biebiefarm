@@ -1,14 +1,14 @@
 import type { CSSProperties, ReactNode } from "react";
 
 export const namaTahap: Record<string, string> = {
-  "persiapan-lahan": "1. Persiapan lahan",
-  persemaian: "2. Persemaian",
-  penanaman: "3. Penanaman",
-  perawatan: "4. Perawatan",
-  pemupukan: "5. Pemupukan",
-  "hama-penyakit": "6. Hama dan penyakit",
-  panen: "7. Panen",
-  evaluasi: "8. Evaluasi",
+  "persiapan-lahan": "Persiapan lahan",
+  persemaian: "Persemaian",
+  penanaman: "Penanaman",
+  perawatan: "Perawatan",
+  pemupukan: "Pemupukan",
+  "hama-penyakit": "Hama dan penyakit",
+  panen: "Panen",
+  evaluasi: "Evaluasi",
 };
 
 export const namaJenisIsi: Record<string, string> = {
