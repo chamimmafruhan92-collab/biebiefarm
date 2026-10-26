@@ -8,6 +8,17 @@ import { namaTahap } from "./panduan/IsiPanduan";
 
 export const revalidate = 60;
 
+async function ambilFotoHero(): Promise<{ url: string; alt: string } | null> {
+  try {
+    const hasil = await client.fetch<{ url?: string | null; alt?: string | null } | null>(
+      `*[_id == "pengaturanBeranda"][0]{ "url": fotoHero.asset->url, "alt": fotoHero.alt }`
+    );
+    return hasil?.url ? { url: hasil.url, alt: hasil.alt || "" } : null;
+  } catch {
+    return null;
+  }
+}
+
 type PanduanRingkas = {
   _id: string;
   judul: string;
@@ -46,7 +57,7 @@ const nav = [
 ];
 
 export default async function Home() {
-  const panduanTerbit = await ambilPanduan();
+   const [panduanTerbit, fotoHero] = await Promise.all([ambilPanduan(), ambilFotoHero()]);
 
   return (
     <main>
@@ -80,7 +91,14 @@ export default async function Home() {
           </div>
           <div className="hero-note"><MapPin size={15} /> Lereng Gunung Sumbing, Jawa Tengah</div>
         </div>
-        <div className="hero-visual" role="img" aria-label="Ilustrasi suasana kebun di lereng pegunungan">
+               <div className={fotoHero ? "hero-visual hero-foto" : "hero-visual"} role="img" aria-label={fotoHero?.alt || "Ilustrasi suasana kebun di lereng pegunungan"}>
+          {fotoHero ? (
+            <>
+              <style>{`.hero-visual.hero-foto:before,.hero-visual.hero-foto:after{display:none}`}</style>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`${fotoHero.url}?w=1400&auto=format`} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+            </>
+          ) : null}
           <div className="hero-image-overlay" />
           <div className="image-caption"><span className="caption-line" /><span>CATATAN DARI LAPANGAN<br /><b>Belajar, tumbuh, berbagi.</b></span></div>
           <div className="floating-note"><Sprout size={19} /><span><b>Berbasis pengalaman</b><small>Bukan sekadar teori</small></span></div>
