@@ -43,6 +43,79 @@ async function ambilPanduan(): Promise<PanduanRingkas[]> {
   }
 }
 
+type Konten = {
+  tentangParagraf?: string[] | null;
+  kerjaSamaTeks?: string | null;
+  whatsapp?: string | null;
+  email?: string | null;
+  instagram?: string | null;
+  tiktok?: string | null;
+  facebook?: string | null;
+};
+
+async function ambilKonten(): Promise<Konten | null> {
+  try {
+    return await client.fetch<Konten | null>(
+      `*[_id == "tentangKerjaSama"][0]{ tentangParagraf, kerjaSamaTeks, whatsapp, email, instagram, tiktok, facebook }`
+    );
+  } catch {
+    return null;
+  }
+}
+
+type Entri = {
+  _id: string;
+  judul: string;
+  kategori?: string | null;
+  tanggal?: string | null;
+  keterangan?: string | null;
+  fotoUrl?: string | null;
+  fotoAlt?: string | null;
+};
+
+async function ambilDokumentasi(): Promise<Entri[]> {
+  try {
+    return await client.fetch<Entri[]>(
+      `*[_type == "dokumentasi" && defined(foto.asset)] | order(tanggal desc, _createdAt desc)[0...4]{
+        _id, judul, kategori, tanggal, keterangan,
+        "fotoUrl": foto.asset->url,
+        "fotoAlt": foto.alt
+      }`
+    );
+  } catch {
+    return [];
+  }
+}
+
+const tentangBawaan = [
+  "Bie Bie Farm adalah ruang berbagi tentang pertanian dari sudut pandang orang yang menjalaninya sendiri.",
+  "Kami percaya pengalaman di kebun punya banyak hal untuk dipelajari—termasuk saat rencana tidak berjalan sesuai harapan. Di sini, proses, pengamatan, dan evaluasi sama pentingnya dengan hasil.",
+];
+
+const kerjaSamaBawaan =
+  "Terbuka untuk diskusi dan kerja sama yang relevan dengan edukasi serta dunia pertanian.";
+
+const labelKategori: Record<string, string> = {
+  "jurnal-petani": "JURNAL PETANI",
+  "catatan-praktik": "CATATAN PRAKTIK",
+};
+
+function urlAman(u?: string | null): string | null {
+  return u && /^https?:\/\//i.test(u.trim()) ? u.trim() : null;
+}
+
+function tanggalIndo(t?: string | null): string | null {
+  if (!t) return null;
+  const d = new Date(t);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 const guides = [
   { number: "01", category: "BUDIDAYA", title: "Panduan Budidaya Tomat", description: "Ruang untuk panduan dari persiapan lahan sampai evaluasi panen.", icon: Sprout },
   { number: "02", category: "PRAKTIK KEBUN", title: "Pemupukan yang Terukur", description: "Catatan praktik, pengamatan tanaman, dan keputusan pemupukan.", icon: FlaskConical },
@@ -57,7 +130,31 @@ const nav = [
 ];
 
 export default async function Home() {
-   const [panduanTerbit, fotoHero] = await Promise.all([ambilPanduan(), ambilFotoHero()]);
+  const [panduanTerbit, fotoHero, konten, dokumentasi] = await Promise.all([
+    ambilPanduan(),
+    ambilFotoHero(),
+    ambilKonten(),
+    ambilDokumentasi(),
+  ]);
+
+  const paragrafTentang = (konten?.tentangParagraf ?? []).filter((t) => t && t.trim());
+  const teksTentang = paragrafTentang.length > 0 ? paragrafTentang : tentangBawaan;
+  const teksKerjaSama = konten?.kerjaSamaTeks?.trim() || kerjaSamaBawaan;
+
+  const nomorWa = (konten?.whatsapp ?? "").replace(/\D/g, "");
+  const emailKontak = konten?.email?.trim() || "";
+  const linkWa = nomorWa ? `https://wa.me/${nomorWa}` : null;
+  const linkEmail = emailKontak ? `mailto:${emailKontak}` : null;
+  const kontakUtama = linkWa ?? linkEmail ?? "#kontak";
+  const kontakEksternal = Boolean(linkWa);
+
+  const tautanSosial = [
+    { label: "WhatsApp", href: linkWa },
+    { label: "Email", href: linkEmail },
+    { label: "Instagram", href: urlAman(konten?.instagram) },
+    { label: "TikTok", href: urlAman(konten?.tiktok) },
+    { label: "Facebook", href: urlAman(konten?.facebook) },
+  ].filter((t): t is { label: string; href: string } => Boolean(t.href));
 
   return (
     <main>
@@ -91,7 +188,7 @@ export default async function Home() {
           </div>
           <div className="hero-note"><MapPin size={15} /> Lereng Gunung Sumbing, Jawa Tengah</div>
         </div>
-               <div className={fotoHero ? "hero-visual hero-foto" : "hero-visual"} role="img" aria-label={fotoHero?.alt || "Ilustrasi suasana kebun di lereng pegunungan"}>
+        <div className={fotoHero ? "hero-visual hero-foto" : "hero-visual"} role="img" aria-label={fotoHero?.alt || "Ilustrasi suasana kebun di lereng pegunungan"}>
           {fotoHero ? (
             <>
               <style>{`.hero-visual.hero-foto:before,.hero-visual.hero-foto:after{display:none}`}</style>
@@ -111,8 +208,7 @@ export default async function Home() {
         <div className="intro-content">
           <h2>Petani muda.<br /><span>Pikiran terbuka.</span><br />Terus bertumbuh.</h2>
           <div className="intro-text">
-            <p>Bie Bie Farm adalah ruang berbagi tentang pertanian dari sudut pandang orang yang menjalaninya sendiri.</p>
-            <p>Kami percaya pengalaman di kebun punya banyak hal untuk dipelajari—termasuk saat rencana tidak berjalan sesuai harapan. Di sini, proses, pengamatan, dan evaluasi sama pentingnya dengan hasil.</p>
+            {teksTentang.map((teks, i) => <p key={i}>{teks}</p>)}
             <a className="text-link" href="#dokumentasi">Lihat cerita dari kebun <ArrowRight size={16} /></a>
           </div>
         </div>
@@ -172,26 +268,56 @@ export default async function Home() {
           <p>Dokumentasi kebun, proses belajar, dan realita pertanian. Cerita akan diisi berdasarkan kegiatan dan foto asli.</p>
         </div>
         <div className="field-grid">
-          <article className="field-feature">
-            <div className="field-art field-art-one"><div className="sun" /><div className="mountain mountain-back" /><div className="mountain mountain-front" /><div className="field-lines" /><span className="art-label">KISAH DARI KEBUN</span></div>
-            <div className="field-meta"><span>JURNAL PETANI</span><span>01</span></div>
-            <h3>Setiap musim punya ceritanya sendiri.</h3>
-            <p>Ruang untuk berbagi proses, tantangan, dan pelajaran dari kegiatan bertani.</p>
-          </article>
-          <article className="field-feature">
-            <div className="field-art field-art-two"><div className="plant-stem" /><div className="plant-leaf leaf-a" /><div className="plant-leaf leaf-b" /><div className="plant-leaf leaf-c" /><span className="art-label">PENGAMATAN TANAMAN</span></div>
-            <div className="field-meta"><span>CATATAN PRAKTIK</span><span>02</span></div>
-            <h3>Mengamati sebelum mengambil keputusan.</h3>
-            <p>Catatan pengamatan membantu kita belajar dari kondisi nyata, bukan asumsi.</p>
-          </article>
+          {dokumentasi.length > 0 ? (
+            dokumentasi.map((d, i) => (
+              <article className="field-feature" key={d._id}>
+                <div className="field-art" style={{ position: "relative", overflow: "hidden", minHeight: 280 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`${d.fotoUrl}?w=900&auto=format`} alt={d.fotoAlt || d.judul} loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+                <div className="field-meta">
+                  <span>{labelKategori[d.kategori ?? ""] ?? "DOKUMENTASI"}</span>
+                  <span>{tanggalIndo(d.tanggal) ?? String(i + 1).padStart(2, "0")}</span>
+                </div>
+                <h3>{d.judul}</h3>
+                {d.keterangan ? <p>{d.keterangan}</p> : null}
+              </article>
+            ))
+          ) : (
+            <>
+              <article className="field-feature">
+                <div className="field-art field-art-one"><div className="sun" /><div className="mountain mountain-back" /><div className="mountain mountain-front" /><div className="field-lines" /><span className="art-label">KISAH DARI KEBUN</span></div>
+                <div className="field-meta"><span>JURNAL PETANI</span><span>01</span></div>
+                <h3>Setiap musim punya ceritanya sendiri.</h3>
+                <p>Ruang untuk berbagi proses, tantangan, dan pelajaran dari kegiatan bertani.</p>
+              </article>
+              <article className="field-feature">
+                <div className="field-art field-art-two"><div className="plant-stem" /><div className="plant-leaf leaf-a" /><div className="plant-leaf leaf-b" /><div className="plant-leaf leaf-c" /><span className="art-label">PENGAMATAN TANAMAN</span></div>
+                <div className="field-meta"><span>CATATAN PRAKTIK</span><span>02</span></div>
+                <h3>Mengamati sebelum mengambil keputusan.</h3>
+                <p>Catatan pengamatan membantu kita belajar dari kondisi nyata, bukan asumsi.</p>
+              </article>
+            </>
+          )}
         </div>
-        <p className="placeholder-note">Ilustrasi sementara — ganti dengan dokumentasi asli Bie Bie Farm sebelum dipublikasikan sebagai cerita nyata.</p>
+        {dokumentasi.length === 0 ? (
+          <p className="placeholder-note">Ilustrasi sementara — ganti dengan dokumentasi asli Bie Bie Farm sebelum dipublikasikan sebagai cerita nyata.</p>
+        ) : null}
       </section>
 
       <section className="collab" id="kerja-sama">
         <div className="collab-symbol"><Users size={26} /></div>
-        <div className="collab-copy"><div className="section-kicker">04 / KOLABORASI</div><h2>Membangun pertanian,<br /><em>bersama lebih banyak pihak.</em></h2><p>Terbuka untuk diskusi dan kerja sama yang relevan dengan edukasi serta dunia pertanian.</p></div>
-        <div className="collab-contact"><span>UNTUK KERJA SAMA</span><a href="#kontak" className="button button-light">Hubungi Bie Bie Farm <ArrowRight size={16} /></a></div>
+        <div className="collab-copy"><div className="section-kicker">04 / KOLABORASI</div><h2>Membangun pertanian,<br /><em>bersama lebih banyak pihak.</em></h2><p>{teksKerjaSama}</p></div>
+        <div className="collab-contact">
+          <span>UNTUK KERJA SAMA</span>
+          <a
+            href={kontakUtama}
+            className="button button-light"
+            {...(kontakEksternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+          >
+            Hubungi Bie Bie Farm <ArrowRight size={16} />
+          </a>
+        </div>
       </section>
 
       <footer id="kontak" className="footer">
@@ -200,7 +326,22 @@ export default async function Home() {
           <p>Belajar dari pengalaman.<br />Tumbuh bersama pertanian.</p>
         </div>
         <div className="footer-links"><span>JELAJAHI</span><a href="#tentang">Tentang</a><a href="#edukasi">Edukasi</a><a href="#dokumentasi">Catatan lapangan</a></div>
-        <div className="footer-links"><span>TERHUBUNG</span><p className="footer-muted">Tautan media sosial dan kontak akan ditambahkan setelah alamat resminya tersedia.</p></div>
+        <div className="footer-links">
+          <span>TERHUBUNG</span>
+          {tautanSosial.length > 0 ? (
+            tautanSosial.map((t) => (
+              <a
+                key={t.label}
+                href={t.href}
+                {...(t.href.startsWith("mailto:") ? {} : { target: "_blank", rel: "noopener noreferrer" })}
+              >
+                {t.label}
+              </a>
+            ))
+          ) : (
+            <p className="footer-muted">Tautan media sosial dan kontak akan ditambahkan setelah alamat resminya tersedia.</p>
+          )}
+        </div>
         <div className="footer-bottom"><span>© {new Date().getFullYear()} Bie Bie Farm</span><span>Dibangun dari pengalaman, dikembangkan dengan inovasi.</span></div>
       </footer>
     </main>
