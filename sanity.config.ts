@@ -4,6 +4,7 @@ import { panduan } from "./sanity/schemaTypes/panduan";
 import { pengaturanBeranda } from "./sanity/schemaTypes/pengaturanBeranda";
 import { tentangKerjaSama } from "./sanity/schemaTypes/tentangKerjaSama";
 import { dokumentasi } from "./sanity/schemaTypes/dokumentasi";
+import { kerjaSamaAktif } from "./sanity/schemaTypes/kerjaSamaAktif";
 
 export default defineConfig({
   name: "default",
@@ -19,6 +20,7 @@ export default defineConfig({
           .items([
             S.documentTypeListItem("panduan").title("Panduan"),
             S.documentTypeListItem("dokumentasi").title("Dokumentasi"),
+            S.documentTypeListItem("kerjaSamaAktif").title("Kerja Sama Aktif"),
             S.divider(),
             S.listItem()
               .title("Pengaturan Beranda")
@@ -40,6 +42,6 @@ export default defineConfig({
     }),
   ],
   schema: {
-    types: [panduan, pengaturanBeranda, tentangKerjaSama, dokumentasi],
+    types: [panduan, pengaturanBeranda, tentangKerjaSama, dokumentasi, kerjaSamaAktif],
   },
 });
