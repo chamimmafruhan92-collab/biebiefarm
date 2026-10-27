@@ -87,6 +87,34 @@ async function ambilDokumentasi(): Promise<Entri[]> {
   }
 }
 
+type KerjaSama = {
+  _id: string;
+  namaPerusahaan: string;
+  bentukKolaborasi?: string | null;
+  keterangan?: string | null;
+  logoUrl?: string | null;
+  logoAlt?: string | null;
+  tautan?: string | null;
+  tanggalMulai?: string | null;
+  fotos?: { url: string; alt?: string | null }[] | null;
+};
+
+async function ambilKerjaSamaAktif(): Promise<KerjaSama[]> {
+  try {
+    return await client.fetch<KerjaSama[]>(
+      `*[_type == "kerjaSamaAktif" && status == "aktif" && izinTayang == true]
+        | order(tanggalMulai desc, _createdAt desc)[0...6]{
+        _id, namaPerusahaan, bentukKolaborasi, keterangan, tautan, tanggalMulai,
+        "logoUrl": logo.asset->url,
+        "logoAlt": logo.alt,
+        "fotos": dokumentasi[defined(asset)][0...3]{ "url": asset->url, "alt": alt }
+      }`
+    );
+  } catch {
+    return [];
+  }
+}
+
 const tentangBawaan = [
   "Bie Bie Farm adalah ruang berbagi tentang pertanian dari sudut pandang orang yang menjalaninya sendiri.",
   "Kami percaya pengalaman di kebun punya banyak hal untuk dipelajari—termasuk saat rencana tidak berjalan sesuai harapan. Di sini, proses, pengamatan, dan evaluasi sama pentingnya dengan hasil.",
@@ -130,11 +158,12 @@ const nav = [
 ];
 
 export default async function Home() {
-  const [panduanTerbit, fotoHero, konten, dokumentasi] = await Promise.all([
+    const [panduanTerbit, fotoHero, konten, dokumentasi, kerjaSama] = await Promise.all([
     ambilPanduan(),
     ambilFotoHero(),
     ambilKonten(),
-    ambilDokumentasi(),
+        ambilDokumentasi(),
+    ambilKerjaSamaAktif(),
   ]);
 
   const paragrafTentang = (konten?.tentangParagraf ?? []).filter((t) => t && t.trim());
@@ -304,6 +333,61 @@ export default async function Home() {
           <p className="placeholder-note">Ilustrasi sementara — ganti dengan dokumentasi asli Bie Bie Farm sebelum dipublikasikan sebagai cerita nyata.</p>
         ) : null}
       </section>
+
+            {kerjaSama.length > 0 ? (
+        <section className="section-wrap" id="kerja-sama-aktif">
+          <div className="section-heading">
+            <div>
+              <div className="section-kicker">KERJA SAMA AKTIF</div>
+              <h2>Kolaborasi yang<br /><em>sedang berjalan.</em></h2>
+            </div>
+            <p>Kerja sama dengan pelaku usaha pertanian yang sedang dijalankan Bie Bie Farm, ditampilkan dengan persetujuan perusahaan yang bersangkutan.</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+            {kerjaSama.map((k) => {
+              const tautanK = urlAman(k.tautan);
+              const mulai = tanggalIndo(k.tanggalMulai);
+              return (
+                <article key={k._id} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    {k.logoUrl ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={`${k.logoUrl}?w=240&auto=format`} alt={k.logoAlt || `Logo ${k.namaPerusahaan}`} loading="lazy" style={{ width: 56, height: 56, objectFit: "contain", flexShrink: 0 }} />
+                      </>
+                    ) : null}
+                    <div>
+                      <h3 style={{ margin: 0 }}>{k.namaPerusahaan}</h3>
+                      <span style={{ display: "inline-block", marginTop: 6, fontSize: 10, letterSpacing: 1.3, fontWeight: 700, color: "#1f7a4d" }}>● STATUS AKTIF</span>
+                    </div>
+                  </div>
+                  {k.bentukKolaborasi ? (
+                    <div>
+                      <div style={{ fontSize: 10, letterSpacing: 1.3, fontWeight: 700, color: "#788994" }}>BENTUK KOLABORASI</div>
+                      <p style={{ margin: "4px 0 0", fontWeight: 600 }}>{k.bentukKolaborasi}</p>
+                    </div>
+                  ) : null}
+                  {k.keterangan ? <p style={{ margin: 0 }}>{k.keterangan}</p> : null}
+                  {k.fotos && k.fotos.length > 0 ? (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+                      {k.fotos.map((f, i) => (
+                        <div key={i} style={{ aspectRatio: "4 / 3", overflow: "hidden", borderRadius: 8 }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={`${f.url}?w=500&auto=format`} alt={f.alt || `Dokumentasi bersama ${k.namaPerusahaan}`} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+                  {mulai ? <small style={{ color: "#788994" }}>Sejak {mulai}</small> : null}
+                  {tautanK ? (
+                    <a className="text-link" href={tautanK} target="_blank" rel="noopener noreferrer">Kunjungi situs perusahaan <ArrowRight size={16} /></a>
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       <section className="collab" id="kerja-sama">
         <div className="collab-symbol"><Users size={26} /></div>
