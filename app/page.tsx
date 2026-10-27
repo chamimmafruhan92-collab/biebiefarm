@@ -343,12 +343,18 @@ export default async function Home() {
             </div>
             <p>Kerja sama dengan pelaku usaha pertanian yang sedang dijalankan Bie Bie Farm, ditampilkan dengan persetujuan perusahaan yang bersangkutan.</p>
           </div>
+          <style>{`
+            .kerja-sama-kartu{position:relative;transition:border-color .2s,box-shadow .2s}
+            .kerja-sama-kartu:hover{border-color:#285b7a !important;box-shadow:0 6px 20px rgba(20,46,69,.08)}
+            .kerja-sama-kartu .tautan-kartu::after{content:"";position:absolute;inset:0}
+            .kerja-sama-kartu .tautan-kartu:focus-visible::after{outline:2px solid #285b7a;outline-offset:2px;border-radius:14px}
+          `}</style>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
             {kerjaSama.map((k) => {
               const tautanK = urlAman(k.tautan);
               const mulai = tanggalIndo(k.tanggalMulai);
               return (
-                <article key={k._id} style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+                       <h3 style={{ margin: 0 }}><Link href={`/kerja-sama/${k._id}`} className="tautan-kartu" style={{ color: "inherit", textDecoration: "none" }}>{k.namaPerusahaan}</Link></h3>
                   <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
                     {k.logoUrl ? (
                       <>
@@ -357,7 +363,7 @@ export default async function Home() {
                       </>
                     ) : null}
                     <div>
-                      <h3 style={{ margin: 0 }}>{k.namaPerusahaan}</h3>
+                      <h3 style={{ margin: 0 }}><Link href={`/kerja-sama/${k._id}`} className="tautan-kartu" style={{ color: "inherit", textDecoration: "none" }}>{k.namaPerusahaan}</Link></h3>
                       <span style={{ display: "inline-block", marginTop: 6, fontSize: 10, letterSpacing: 1.3, fontWeight: 700, color: "#1f7a4d" }}>● STATUS AKTIF</span>
                     </div>
                   </div>
@@ -379,8 +385,9 @@ export default async function Home() {
                     </div>
                   ) : null}
                   {mulai ? <small style={{ color: "#788994" }}>Sejak {mulai}</small> : null}
+                  <span style={{ fontWeight: 600, color: "#285b7a" }}>Lihat detail dan seluruh dokumentasi →</span>
                   {tautanK ? (
-                    <a className="text-link" href={tautanK} target="_blank" rel="noopener noreferrer">Kunjungi situs perusahaan <ArrowRight size={16} /></a>
+                    <a className="text-link" href={tautanK} target="_blank" rel="noopener noreferrer" style={{ position: "relative", zIndex: 1 }}>Kunjungi situs perusahaan <ArrowRight size={16} /></a>
                   ) : null}
                 </article>
               );
