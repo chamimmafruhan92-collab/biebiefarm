@@ -350,48 +350,150 @@ export default async function Home() {
             .kerja-sama-kartu .tautan-kartu:focus-visible::after{outline:2px solid #285b7a;outline-offset:2px;border-radius:14px}
           `}</style>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-            {kerjaSama.map((k) => {
-              const tautanK = urlAman(k.tautan);
-              const mulai = tanggalIndo(k.tanggalMulai);
-              return (
-                       <h3 style={{ margin: 0 }}><Link href={`/kerja-sama/${k._id}`} className="tautan-kartu" style={{ color: "inherit", textDecoration: "none" }}>{k.namaPerusahaan}</Link></h3>
-                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    {k.logoUrl ? (
-                      <>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={`${k.logoUrl}?w=240&auto=format`} alt={k.logoAlt || `Logo ${k.namaPerusahaan}`} loading="lazy" style={{ width: 56, height: 56, objectFit: "contain", flexShrink: 0 }} />
-                      </>
-                    ) : null}
-                    <div>
-                      <h3 style={{ margin: 0 }}><Link href={`/kerja-sama/${k._id}`} className="tautan-kartu" style={{ color: "inherit", textDecoration: "none" }}>{k.namaPerusahaan}</Link></h3>
-                      <span style={{ display: "inline-block", marginTop: 6, fontSize: 10, letterSpacing: 1.3, fontWeight: 700, color: "#1f7a4d" }}>● STATUS AKTIF</span>
-                    </div>
-                  </div>
-                  {k.bentukKolaborasi ? (
-                    <div>
-                      <div style={{ fontSize: 10, letterSpacing: 1.3, fontWeight: 700, color: "#788994" }}>BENTUK KOLABORASI</div>
-                      <p style={{ margin: "4px 0 0", fontWeight: 600 }}>{k.bentukKolaborasi}</p>
-                    </div>
-                  ) : null}
-                  {k.keterangan ? <p style={{ margin: 0 }}>{k.keterangan}</p> : null}
-                  {k.fotos && k.fotos.length > 0 ? (
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
-                      {k.fotos.map((f, i) => (
-                        <div key={i} style={{ aspectRatio: "4 / 3", overflow: "hidden", borderRadius: 8 }}>
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={`${f.url}?w=500&auto=format`} alt={f.alt || `Dokumentasi bersama ${k.namaPerusahaan}`} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                        </div>
-                      ))}
-                    </div>
-                  ) : null}
-                  {mulai ? <small style={{ color: "#788994" }}>Sejak {mulai}</small> : null}
-                  <span style={{ fontWeight: 600, color: "#285b7a" }}>Lihat detail dan seluruh dokumentasi →</span>
-                  {tautanK ? (
-                    <a className="text-link" href={tautanK} target="_blank" rel="noopener noreferrer" style={{ position: "relative", zIndex: 1 }}>Kunjungi situs perusahaan <ArrowRight size={16} /></a>
-                  ) : null}
-                </article>
-              );
-            })}
+
+{kerjaSama.map((k) => {
+  const tautanK = urlAman(k.tautan);
+  const mulai = tanggalIndo(k.tanggalMulai);
+
+  return (
+    <article
+      key={k._id}
+      className="kerja-sama-kartu"
+      style={{
+        display: "grid",
+        gap: 14,
+        padding: 20,
+        border: "1px solid #e5e7eb",
+        borderRadius: 14,
+        background: "#fff",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        {k.logoUrl ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`${k.logoUrl}?w=240&auto=format`}
+              alt={k.logoAlt || `Logo ${k.namaPerusahaan}`}
+              loading="lazy"
+              style={{
+                width: 56,
+                height: 56,
+                objectFit: "contain",
+                flexShrink: 0,
+              }}
+            />
+          </>
+        ) : null}
+
+        <div>
+          <h3 style={{ margin: 0 }}>
+            <Link
+              href={`/kerja-sama/${k._id}`}
+              className="tautan-kartu"
+              style={{ color: "inherit", textDecoration: "none" }}
+            >
+              {k.namaPerusahaan}
+            </Link>
+          </h3>
+          <span
+            style={{
+              display: "inline-block",
+              marginTop: 6,
+              fontSize: 10,
+              letterSpacing: 1.3,
+              fontWeight: 700,
+              color: "#1f7a4d",
+            }}
+          >
+            ● STATUS AKTIF
+          </span>
+        </div>
+      </div>
+
+      {k.bentukKolaborasi ? (
+        <div>
+          <div
+            style={{
+              fontSize: 10,
+              letterSpacing: 1.3,
+              fontWeight: 700,
+              color: "#788994",
+            }}
+          >
+            BENTUK KOLABORASI
+          </div>
+          <p style={{ margin: "4px 0 0", fontWeight: 600 }}>
+            {k.bentukKolaborasi}
+          </p>
+        </div>
+      ) : null}
+
+      {k.keterangan ? (
+        <p style={{ margin: 0 }}>{k.keterangan}</p>
+      ) : null}
+
+      {k.fotos && k.fotos.length > 0 ? (
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 6,
+          }}
+        >
+          {k.fotos.map((f, i) => (
+            <div
+              key={i}
+              style={{
+                aspectRatio: "4 / 3",
+                overflow: "hidden",
+                borderRadius: 8,
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${f.url}?w=500&auto=format`}
+                alt={f.alt || `Dokumentasi bersama ${k.namaPerusahaan}`}
+                loading="lazy"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {mulai ? (
+        <small style={{ color: "#788994" }}>Sejak {mulai}</small>
+      ) : null}
+
+      <Link
+        href={`/kerja-sama/${k._id}`}
+        className="text-link"
+        style={{ position: "relative", zIndex: 1 }}
+      >
+        Lihat detail dan seluruh dokumentasi <ArrowRight size={16} />
+      </Link>
+
+      {tautanK ? (
+        <a
+          className="text-link"
+          href={tautanK}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ position: "relative", zIndex: 1 }}
+        >
+          Kunjungi situs perusahaan <ArrowRight size={16} />
+        </a>
+      ) : null}
+    </article>
+  );
+})}
+
           </div>
         </section>
       ) : null}
